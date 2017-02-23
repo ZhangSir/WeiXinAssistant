@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">微信助手</string>
+    <string name="assistant_service_desc">微信助手服务</string>
+    
+    <string name="main_status_opened">已开启</string>
+    <string name="main_status_closed">已关闭</string>
+    <string name="main_open">去开启</string>
+    <string name="main_close">去关闭</string>
+    <string name="main_open_window_monitor">处于聊天界面时，是否自动处理？</string>
+
+</resources>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.itzs.weixinassistant.MainActivity">
+
+    <TextView
+        android:id="@+id/tv_main_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/main_status_closed"
+        android:textColor="@color/red"
+        android:textSize="@dimen/sp_60"
+        android:textStyle="bold" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_40"
+        android:layout_alignParentBottom="true"
+        android:paddingLeft="@dimen/dp_16"
+        android:paddingRight="@dimen/dp_16">
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switch_main_auto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/switch_main_auto"
+            android:text="@string/main_open_window_monitor" />
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/btn_main_enter"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_40"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:background="@null"
+        android:text="@string/main_open"
+        android:textColor="@color/orange"
+        android:textSize="@dimen/sp_14" />
+</RelativeLayout>

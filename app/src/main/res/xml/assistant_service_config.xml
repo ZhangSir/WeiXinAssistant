@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeAllMask"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/assistant_service_desc"
+    android:notificationTimeout="100"
+    android:packageNames="com.tencent.mm" />
+
+<!--
+accessibilityEventTypes: 响应哪一种类型的事件，typeAllMask就是响应所有类型的事件了，另外还有单击、长按、滑动等。
+accessibilityFeedbackType: 用什么方式反馈给用户，有语音播出和振动。可以配置一些TTS引擎，让它实现发音。
+notificationTimeout: 响应时间
+description：辅助服务的描述信息。
+packageNames: 指定响应哪个应用的事件。这里我们是写抢红包助手，就写微信的包名：com.tencent.mm，这样就可以监听微信产生的事件了。
+-->
