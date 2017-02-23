@@ -15,9 +15,9 @@
 在打开红包界面，模拟点击红包“开”按钮；  
 
 ##参考资料
-Android中微信抢红包助手的实现详解（http://www.jb51.net/article/104507.htm）  
-Android AccessibilityService实现微信抢红包插件 （http://www.jb51.net/article/97982.htm）  
-Android微信自动抢红包插件优化和实现 （http://www.jb51.net/article/99327.htm）
+Android中微信抢红包助手的实现详解 http://www.jb51.net/article/104507.htm  
+Android AccessibilityService实现微信抢红包插件 http://www.jb51.net/article/97982.htm  
+Android微信自动抢红包插件优化和实现 http://www.jb51.net/article/99327.htm
 
 ##截图
 ![image1](https://github.com/ZhangSir/WeiXinAssistant/blob/master/Screenshot_2017-02-23-17-38-23.png)
