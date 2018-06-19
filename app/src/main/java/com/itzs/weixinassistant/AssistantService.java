@@ -13,9 +13,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
-import android.widget.Toast;
 
 import java.util.List;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 /**
  * 助手服务类
@@ -69,8 +70,12 @@ public class AssistantService extends AccessibilityService{
                     if (!TextUtils.isEmpty(content)) {
                         //判断是否含有[微信红包]字样
                         if (content.contains("[微信红包]")) {
+                            Log.d(TAG, "通知栏有[微信红包]");
                             //点亮并解锁屏幕
-                            wakeAndUnlock(true);
+//                            wakeAndUnlock(true);
+                            wake();
+//                            lockOrUnlock(false);
+                            sendAutoUnlockBroadcast();
                             //如果有则打开微信红包页面
                             openWeChatPage(event);
                         }
@@ -80,36 +85,47 @@ public class AssistantService extends AccessibilityService{
             //窗口发生改变时会调用该事件
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
                 String className = event.getClassName().toString();
-                Log.d(TAG, "窗口有变化");
+                Log.d(TAG, "窗口有变化：" + className);
                 if (LAUCHER.equals(className)) {
                     //判断是否是微信聊天界面
                     //获取当前聊天页面的根布局
+                    Log.d(TAG, "微信聊天界面");
                     AccessibilityNodeInfo rootNode = getRootInActiveWindow();
                     //开始找红包
                     findRedPacket(rootNode);
                 }else if (LUCKEY_MONEY_RECEIVER.equals(className)) {
-                    //判断是否是显示‘开'的那个红包界面
+                    //判断是否是显示‘开’的那个红包界面
+                    Log.d(TAG, "显示‘开’的那个红包界面");
                     AccessibilityNodeInfo rootNode = getRootInActiveWindow();
                     //开始抢红包
                     openRedPacket(rootNode);
                 }else if(LUCKEY_MONEY_DETAIL.equals(className)){
                     //判断是否是红包领取后的详情界面
+                    Log.d(TAG, "红包领取后的详情界面");
+
                     //返回桌面
                     back2Home();
                     //关闭屏幕
-                    wakeAndUnlock(false);
+//                    wakeAndUnlock(false);
+                    lockOrUnlock(true);
                 }
                 break;
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
                 //窗口视图变化
-                if(!enbleWindowMonitor) return;
-
+                AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+                if(null == nodeInfo){
+                    return;
+                }
+                Log.d(TAG, "窗口视图有变化：" + nodeInfo.getClassName().toString());
                 String pubclassName = event.getClassName().toString();
-
-                Log.d(TAG, "窗口视图有变化：" + getRootInActiveWindow().getClassName().toString());
                 Log.d(TAG, "event class：" + pubclassName);
 
+                if(!enbleWindowMonitor) {
+                    return;
+                }
+
                 for (CharSequence text : event.getText()) {
+                    Log.d(TAG, text.toString());
                     String content = text.toString();
                     if (!TextUtils.isEmpty(content)) {
                         //判断是否含有"领取红包"字样
@@ -121,6 +137,8 @@ public class AssistantService extends AccessibilityService{
                 }
 
                 break;
+                default:
+                    break;
         }
     }
 
@@ -197,40 +215,65 @@ public class AssistantService extends AccessibilityService{
      */
     private void back2Home() {
         Intent home=new Intent(Intent.ACTION_MAIN);
-        home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        home.setFlags(FLAG_ACTIVITY_NEW_TASK);
         home.addCategory(Intent.CATEGORY_HOME);
         startActivity(home);
     }
 
-    /**
-     * 点亮并解锁屏幕
-     * @param b
-     */
-    private void wakeAndUnlock(boolean b) {
-        if (b) {
-            //获取电源管理器对象
-            pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+//    /**
+//     * 点亮并解锁屏幕
+//     * 锁不了其他程序打开的屏幕,你可以控制自己的锁，别想着别人的锁。
+//     * @param b
+//     */
+//    private void wakeAndUnlock(boolean b) {
+//        if (b) {
+//            //获取电源管理器对象
+//            pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+//
+//            //获取PowerManager.WakeLock对象，后面的参数|表示同时传入两个值，最后的是调试用的Tag
+//            wl = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.SCREEN_BRIGHT_WAKE_LOCK, TAG);
+//
+//            //点亮屏幕
+//            wl.acquire();
+//
+//            //得到键盘锁管理器对象
+//            km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+//            kl = km.newKeyguardLock("unLock");
+//
+//            //解锁
+//            kl.disableKeyguard();
+//        } else {
+//            //锁屏
+//            kl.reenableKeyguard();
+//
+//            //释放wakeLock，关灯
+//            wl.release();
+//        }
+//
+//    }
 
-            //获取PowerManager.WakeLock对象，后面的参数|表示同时传入两个值，最后的是调试用的Tag
-            wl = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.SCREEN_BRIGHT_WAKE_LOCK, TAG);
+    private void wake(){
+        //获取电源管理器对象
+        pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        //获取PowerManager.WakeLock对象，后面的参数|表示同时传入两个值，最后的是调试用的Tag
+        wl = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.SCREEN_BRIGHT_WAKE_LOCK, TAG);
+        //点亮屏幕
+        wl.acquire();
+        wl.release();
+    }
 
-            //点亮屏幕
-            wl.acquire();
+    private void lockOrUnlock(boolean lock){
+        //得到键盘锁管理器对象
+        km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        kl = km.newKeyguardLock("unLock");
 
-            //得到键盘锁管理器对象
-            km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-            kl = km.newKeyguardLock("unLock");
-
-            //解锁
-            kl.disableKeyguard();
-        } else {
+        if(lock){
             //锁屏
             kl.reenableKeyguard();
-
-            //释放wakeLock，关灯
-            wl.release();
+        }else{
+            //解锁
+            kl.disableKeyguard();
         }
-
     }
 
     /**
@@ -238,9 +281,11 @@ public class AssistantService extends AccessibilityService{
      */
     @Override
     protected void onServiceConnected() {
-        isAssistantRunning = true;
-        Log.d(TAG, "抢红包服务开启");
         super.onServiceConnected();
+        Log.d(TAG, "抢红包服务开启");
+        isAssistantRunning = true;
+        //注册锁屏广播
+        LockScreenBroadcastReceiver.register(this);
     }
 
     /**
@@ -256,9 +301,17 @@ public class AssistantService extends AccessibilityService{
      */
     @Override
     public boolean onUnbind(Intent intent) {
-        isAssistantRunning = false;
         Log.d(TAG, "抢红包服务已被关闭");
+        isAssistantRunning = false;
         return super.onUnbind(intent);
+    }
+
+    /**
+     * 发送自动解锁屏幕的广播
+     */
+    public void sendAutoUnlockBroadcast(){
+        Intent autoUnlock = new Intent(LockScreenActivity.ACTION_AUTO_UNLOCK_SCREEN);
+        sendBroadcast(autoUnlock);
     }
 
     /**
